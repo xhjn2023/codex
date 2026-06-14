@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="zh-CN">
 <head>
     <meta charset="UTF-8">
@@ -78,7 +78,7 @@
         .btn-danger:hover { background: #f56565; }
         .stats-grid {
             display: grid;
-            grid-template-columns: repeat(4, 1fr);
+            grid-template-columns: repeat(3, 1fr);
             gap: 8px;
             text-align: center;
         }
@@ -147,11 +147,6 @@
             <label>起床</label>
             <input type="time" id="wakeTime" value="07:00">
         </div>
-        <div class="form-row">
-            <label>入睡时长</label>
-            <input type="number" id="fallAsleepMin" placeholder="分钟" min="0" max="300" value="0" style="flex:none;width:100px;">
-            <span style="font-size:12px;color:#718096;">分钟</span>
-        </div>
         <button class="btn btn-primary" onclick="addRecord()">保存记录</button>
     </div>
 
@@ -168,10 +163,6 @@
             </div>
             <div class="stat-item">
                 <div class="stat-value" id="recordCount">-</div>
-            <div class="stat-item">
-                <div class="stat-value" id="avgFallAsleep">-</div>
-                <div class="stat-label">平均入睡时长</div>
-            </div>
                 <div class="stat-label">记录天数</div>
             </div>
         </div>
@@ -216,11 +207,10 @@
         let date = document.getElementById('sleepDate').value;
         let sleep = document.getElementById('sleepTime').value;
         let wake = document.getElementById('wakeTime').value;
-        let fallAsleep = parseInt(document.getElementById('fallAsleepMin').value) || 0;
         if (!date || !sleep || !wake) { alert('请填写完整信息'); return; }
         let records = getRecords();
         let idx = records.findIndex(r => r.date === date);
-        let record = { date, sleep, wake, fallAsleep };
+        let record = { date, sleep, wake };
         if (idx >= 0) records[idx] = record;
         else records.push(record);
         records.sort((a, b) => b.date.localeCompare(a.date));
@@ -263,14 +253,9 @@
         let total = durations.reduce((a, b) => a + b, 0);
         let avg = durations.length ? Math.round(total / durations.length) : 0;
 
-        let fallAsleepTimes = weekRecords.map(r => r.fallAsleep || 0);
-        let totalFallAsleep = fallAsleepTimes.reduce((a, b) => a + b, 0);
-        let avgFallAsleep = fallAsleepTimes.length ? Math.round(totalFallAsleep / fallAsleepTimes.length) : 0;
-
         document.getElementById('avgDuration').textContent = durations.length ? formatDuration(avg) : '-';
         document.getElementById('totalHours').textContent = total ? formatDuration(total) : '-';
         document.getElementById('recordCount').textContent = weekRecords.length + ' 天';
-        document.getElementById('avgFallAsleep').textContent = fallAsleepTimes.length ? avgFallAsleep + ' min' : '-';
 
         let list = document.getElementById('recordsList');
         if (records.length === 0) {
@@ -279,11 +264,10 @@
         }
         list.innerHTML = records.map(r => {
             let dur = calcDuration(r.sleep, r.wake);
-                        let fa = r.fallAsleep || 0;
-return '<div class="record-item">' +
+            return '<div class="record-item">' +
                 '<div>' +
                     '<div class="record-date">' + r.date + '</div>' +
-                    '<div class="record-time">' + r.sleep + ' → ' + r.wake + (fa ? ' · 入睡 ' + fa + 'min' : '') + '</div>' +
+                    '<div class="record-time">' + r.sleep + ' → ' + r.wake + '</div>' +
                 '</div>' +
                 '<div style="display:flex;align-items:center;gap:12px;">' +
                     '<span class="record-duration">' + formatDuration(dur) + '</span>' +
